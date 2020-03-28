@@ -5,5 +5,5 @@ WIP
 ## Installation
 
 ```sh
-pip install distributions
+pip install my_statistical_distributions
 ```
