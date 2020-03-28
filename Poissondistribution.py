@@ -2,31 +2,26 @@ import math
 import matplotlib.pyplot as plt
 from .Generaldistribution import Distribution
 
-class Binomial(Distribution):
-    """ Binomial distribution class for calculating and 
-    visualizing a Binomial distribution.
+class Poisson(Distribution):
+    """ Poisson distribution class for calculating and 
+    visualizing a Poisson distribution.
     
     Attributes:
         mean (float) representing the mean value of the distribution
         stdev (float) representing the standard deviation of the distribution
         data_list (list of floats) a list of floats to be extracted from the data file
-        p (float) representing the probability of an event occurring
-        n (int) number of trials            
+        lambda (float) the rate parameter       
     """
-    
-    
-    def __init__(self, prob=.5, size=20):
-                
-        self.n = size
-        self.p = prob
+   
+   
+    def __init__(self, l=1):
+        
+        self.l = l
         
         Distribution.__init__(self, self.calculate_mean(), self.calculate_stdev())
-    
-                        
-    
+        
     def calculate_mean(self):
-    
-        """Function to calculate the mean from p and n
+        """Function that returns the mean of the distribution
         
         Args: 
             None
@@ -36,15 +31,13 @@ class Binomial(Distribution):
     
         """
         
-        self.mean = self.p * self.n
-                
+        self.mean = self.l
+        
         return self.mean
-
-
-
+    
     def calculate_stdev(self):
 
-        """Function to calculate the standard deviation from p and n.
+        """Function that returns the standard deviation lambda of the distribution
         
         Args: 
             None
@@ -54,29 +47,28 @@ class Binomial(Distribution):
     
         """
         
-        self.stdev = math.sqrt(self.n * self.p * (1 - self.p))
-        
+        self.stdev = math.sqrt(self.l)
+     
         return self.stdev
-        
-        
+    
     def replace_stats_with_data(self):
     
-        """Function to calculate p and n from the data set
+        """Function to calculate lambda from the data set
         
         Args: 
             None
         
         Returns: 
-            float: the p value
-            float: the n value
+            float: the lambda value
     
         """
     
-        self.n = len(self.data)
-        self.p = 1.0 * sum(self.data) / len(self.data)
+        self.l = sum(self.data) / len(self.data)
         self.mean = self.calculate_mean()
-        self.stdev = self.calculate_stdev()           
+        self.stdev = self.calculate_stdev()
         
+        return self.l
+    
     def plot_bar(self):
         """Function to output a histogram of the instance variable data using 
         matplotlib pyplot library.
@@ -88,36 +80,33 @@ class Binomial(Distribution):
             None
         """
                 
-        plt.bar(x = ['0', '1'], height = [(1 - self.p) * self.n, self.p * self.n])
+        plt.hist(self.data)
         plt.title('Bar Chart of Data')
         plt.xlabel('outcome')
         plt.ylabel('count')
-        
-        
         
     def pdf(self, k):
         """Probability density function calculator for the gaussian distribution.
         
         Args:
-            x (float): point for calculating the probability density function
+            k (float): point for calculating the probability density function
             
         
         Returns:
             float: probability density function output
         """
         
-        a = math.factorial(self.n) / (math.factorial(k) * (math.factorial(self.n - k)))
-        b = (self.p ** k) * (1 - self.p) ** (self.n - k)
+        a = math.exp(- self.l)
+        b = math.pow(self.l, k) / math.factorial(k)
         
         return a * b
-        
-
-    def plot_bar_pdf(self):
+    
+    def plot_bar_pdf(self, n):
 
         """Function to plot the pdf of the binomial distribution
         
         Args:
-            None
+            n: maximum number of events to calculate pdf for
         
         Returns:
             list: x values for the pdf plot
@@ -129,40 +118,34 @@ class Binomial(Distribution):
         y = []
         
         # calculate the x values to visualize
-        for i in range(self.n + 1):
+        for i in range(n + 1):
             x.append(i)
             y.append(self.pdf(i))
 
         # make the plots
         plt.bar(x, y)
-        plt.title('Distribution of Outcomes')
+        plt.title('Probability of Events in One Interval')
         plt.ylabel('Probability')
-        plt.xlabel('Outcome')
+        plt.xlabel('Events')
 
         plt.show()
 
         return x, y
-        
+    
     def __add__(self, other):
         
-        """Function to add together two Binomial distributions with equal p
+        """Function to add together two Poisson distributions
         
         Args:
-            other (Binomial): Binomial instance
+            other (Poisson): Poisson instance
             
         Returns:
-            Binomial: Binomial distribution
+            Poisson: Poisson distribution
             
         """
         
-        try:
-            assert self.p == other.p, 'p values are not equal'
-        except AssertionError as error:
-            raise
-        
-        result = Binomial()
-        result.n = self.n + other.n
-        result.p = self.p
+        result = Poisson()
+        result.l = self.l + other.l
         result.calculate_mean()
         result.calculate_stdev()
         
@@ -171,15 +154,15 @@ class Binomial(Distribution):
         
     def __repr__(self):
     
-        """Function to output the characteristics of the Binomial instance
+        """Function to output the characteristics of the Poisson instance
         
         Args:
             None
         
         Returns:
-            string: characteristics of the Binomial
+            string: characteristics of the Poisson
         
         """
         
-        return "mean {}, standard deviation {}, p {}, n {}".\
-        format(self.mean, self.stdev, self.p, self.n)
+        return "mean {}, standard deviation {}, lambda {}".\
+        format(self.mean, self.stdev, self.l)
