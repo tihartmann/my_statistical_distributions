@@ -1,6 +1,6 @@
 # distributions package
 
-Simple Python class for statistical distributions. Currently supports Binomial and Gaussian distributions.
+Simple Python class for statistical distributions. Currently supports Gaussian, Binomial, and Poisson distributions.
 
 ## Installation
 
